@@ -7,6 +7,7 @@ import Cart from "./views/front/Cart";
 import NotFound from "./views/front/NotFound";
 import Checkout from "./views/front/Checkout";
 import Login from "./views/Login";
+import DashboardProducts from "./views/DashboardProducts";
 
 export const router = createHashRouter([
   {
@@ -37,12 +38,13 @@ export const router = createHashRouter([
         path: "login",
         element: <Login />,
       },
-      // {
-      //   path: "admin/products",
-      //   element: <Products />,
-      // },
     ],
   },
+  {
+    path: "dashboardproducts",
+    element: <DashboardProducts />,
+  },
+
   {
     path: "*",
     element: <NotFound />,

@@ -1,15 +1,33 @@
 import axios from "axios";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { emailValidation } from "../utils/validation";
+import { useNavigate } from "react-router";
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
-function Login({ getProducts, setIsAuth }) {
+// SweetAlert
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+// SweetAlert
+const MySwal = withReactContent(Swal);
+// 2. 自定義一個 Toast (右上角小提示)
+// 這樣之後呼叫只要寫 Toast.fire(...) 即可，不用重複寫設定
+const Toast = MySwal.mixin({
+  toast: true,
+  position: "top",
+  showConfirmButton: false,
+  timer: 2000,
+  timerProgressBar: true,
+});
+
+function Login() {
+  // function Login({ getProducts, setIsAuth }) {
   // const [formData, setFormData] = useState({
   //   username: "",
   //   password: "",
   // });
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -28,6 +46,7 @@ function Login({ getProducts, setIsAuth }) {
   //     [name]: value,
   //   }));
   // };
+
   const onSubmit = async (formData) => {
     try {
       // e.preventDefault();
@@ -36,9 +55,18 @@ function Login({ getProducts, setIsAuth }) {
       const { token, expired } = res.data;
       document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
       axios.defaults.headers.common["Authorization"] = token;
+      Toast.fire({
+        icon: "success",
+        title: "登入成功",
+      });
+
+      navigate("/dashboardproducts");
     } catch (e) {
+      Toast.fire({
+        icon: "error",
+        title: "登入失敗，請檢查帳號密碼！",
+      });
       console.log(e.response);
-      alert("登入失敗，請檢查帳號密碼");
     }
   };
 
