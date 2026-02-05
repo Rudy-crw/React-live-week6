@@ -53,7 +53,9 @@ function Login() {
       const res = await axios.post(`${API_BASE}/admin/signin`, formData);
       console.log(res.data);
       const { token, expired } = res.data;
+      // eslint-disable-next-line
       document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+      // eslint-disable-next-line
       axios.defaults.headers.common["Authorization"] = token;
       Toast.fire({
         icon: "success",
