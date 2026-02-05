@@ -1,5 +1,3 @@
-// !! defaultValue 要刪除 !!
-
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { currency } from "../../utils/filter";
@@ -90,6 +88,7 @@ const Checkout = () => {
         product_id: productId,
         qty,
       };
+      // eslint-disable-next-line no-unused-vars
       const res = await axios.put(
         `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
         { data },
@@ -132,6 +131,7 @@ const Checkout = () => {
 
   const delCart = async (cartId) => {
     try {
+      // eslint-disable-next-line no-unused-vars
       const res = await axios.delete(
         `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
       );
@@ -149,6 +149,7 @@ const Checkout = () => {
 
   const delAllCart = async () => {
     try {
+      // eslint-disable-next-line no-unused-vars
       const res = await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
       // console.log(res);
       const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
@@ -359,7 +360,6 @@ const Checkout = () => {
               type="email"
               className="form-control"
               placeholder="請輸入 Email"
-              defaultValue="test@gamil.com"
               {...register("email", emailValidation)}
             />
             {errors.email && (
@@ -377,7 +377,6 @@ const Checkout = () => {
               type="text"
               className="form-control"
               placeholder="請輸入姓名"
-              defaultValue="小明"
               {...register("name", {
                 required: "請輸入姓名",
                 minLength: {
@@ -401,7 +400,6 @@ const Checkout = () => {
               type="tel"
               className="form-control"
               placeholder="請輸入電話"
-              defaultValue="0912345678"
               {...register("tel", {
                 required: "請輸入電話",
                 pattern: {
@@ -426,7 +424,6 @@ const Checkout = () => {
               type="text"
               className="form-control"
               placeholder="請輸入地址"
-              defaultValue="臺北市信義區信義路5段7號"
               {...register("address", {
                 required: "請輸入地址",
               })}
