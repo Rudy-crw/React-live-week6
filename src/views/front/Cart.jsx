@@ -101,6 +101,7 @@ const Cart = () => {
           onClick={() => {
             delAllCart();
           }}
+          disabled={!cart.carts?.length}
         >
           清空購物車
         </button>

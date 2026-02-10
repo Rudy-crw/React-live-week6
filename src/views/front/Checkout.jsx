@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { currency } from "../../utils/filter";
-import { useForm } from "react-hook-form";
+import { get, useForm } from "react-hook-form";
 import { RotatingLines } from "react-loader-spinner";
 import * as bootstrap from "bootstrap";
 import SingleProductModal from "../../components/SingleProductModal";
@@ -44,10 +44,19 @@ const Checkout = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     mode: "onChange",
   });
-
+  const getCart = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      setCart(res.data.data);
+      // console.log("res.data.data:", res.data);
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
   useEffect(() => {
     const getProducts = async () => {
       try {
@@ -59,15 +68,6 @@ const Checkout = () => {
       }
     };
     getProducts();
-    const getCart = async () => {
-      try {
-        const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-        setCart(res.data.data);
-        // console.log("res.data.data:", res.data);
-      } catch (error) {
-        console.log(error.response);
-      }
-    };
     getCart();
     productModalRef.current = new bootstrap.Modal("#productModal", {
       keyboard: false,
@@ -93,14 +93,15 @@ const Checkout = () => {
         `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
         { data },
       );
+      Toast.fire({ icon: "success", title: "數量已更新" });
       // console.log(res);
-
-      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-      setCart(res2.data.data);
-      Toast.fire({
-        icon: "success",
-        title: "商品數量已成功更新",
-      });
+      getCart();
+      // const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      // setCart(res2.data.data);
+      // Toast.fire({
+      //   icon: "success",
+      //   title: "商品數量已成功更新",
+      // });
     } catch (error) {
       console.log(error.response);
     }
@@ -115,13 +116,14 @@ const Checkout = () => {
       const res = await axios.post(`${API_BASE}/api/${API_PATH}/cart`, {
         data,
       });
-      console.log(res.data);
+      // console.log(res.data);
       Toast.fire({
         icon: "success",
         title: "商品已加入購物車",
       });
-      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-      setCart(res2.data.data);
+      // const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      // setCart(res2.data.data);
+      getCart();
     } catch (error) {
       console.log(error.response);
     } finally {
@@ -136,12 +138,13 @@ const Checkout = () => {
         `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
       );
       // console.log(res);
-      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-      setCart(res2.data.data);
+      // const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      // setCart(res2.data.data);
       Toast.fire({
         icon: "success",
         title: "商品刪除成功！",
       });
+      getCart();
     } catch (error) {
       console.log(error.response);
     }
@@ -152,8 +155,9 @@ const Checkout = () => {
       // eslint-disable-next-line no-unused-vars
       const res = await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
       // console.log(res);
-      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-      setCart(res2.data.data);
+      // const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      // setCart(res2.data.data);
+      getCart();
     } catch (error) {
       console.log(error.response);
     }
@@ -169,12 +173,25 @@ const Checkout = () => {
       const res = await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
         data,
       });
-      console.log(res.data);
+      reset();
+      // console.log(res.data);
       //送出成功後，購物車會刷新
-      const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-      setCart(res2.data.data);
+      // const res2 = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
+      // setCart(res2.data.data);
+      getCart();
+      MySwal.fire({
+        icon: "success",
+        title: "訂單建立成功",
+        html: `您的訂單編號為：<br><b>${res.data.orderId}</b>`,
+        confirmButtonText: "確定",
+      });
     } catch (error) {
       console.log(error.response);
+      Toast.fire({
+        icon: "error",
+        title: "訂單建立失敗",
+        text: error.response?.data?.message || "發生未知錯誤",
+      });
     }
   };
   const handleView = async (id) => {
@@ -246,7 +263,7 @@ const Checkout = () => {
                     type="button"
                     className="btn btn-outline-danger"
                     onClick={() => {
-                      addCart(product.id);
+                      addCart(product.id, 1);
                     }}
                     disabled={loadingCardId === product.id}
                   >
@@ -270,6 +287,7 @@ const Checkout = () => {
           onClick={() => {
             delAllCart();
           }}
+          disabled={!cart.carts?.length}
         >
           清空購物車
         </button>
@@ -404,10 +422,10 @@ const Checkout = () => {
                 required: "請輸入電話",
                 pattern: {
                   value: /^\d+$/,
-                  minLength: {
-                    value: 8,
-                    message: "電話至少 8 碼",
-                  },
+                },
+                minLength: {
+                  value: 8,
+                  message: "電話至少 8 碼",
                 },
               })}
             />
